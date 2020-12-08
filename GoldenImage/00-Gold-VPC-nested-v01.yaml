@@ -1,0 +1,95 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Using Import value exported from previous exercise
+
+
+Parameters:
+    VpcBlock:
+        Type: String
+        Default: 10.0.0.0/16
+        Description: VPC CIDR Range
+    Subnet01Block:
+        Type: String
+        Default: 10.0.1.0/24
+        Description: Subnet 01 CIDR Range within the VPC
+
+Metadata:
+    AWS::CloudFormation::Interface:
+        ParameterGroups:
+            - Label:
+                Default: Dev VPC Network Configuration
+                Parameters:
+                    - VpcBlock
+                    - Subnet01Block
+        ParameterLabels:
+            VpcBlock:
+                Default: VPC CIDR Range Selection
+            Subnet01Block:
+                Default: Subnet CIDR Range Selection                
+    
+Resources:
+    MyVPC2:
+        Type: AWS::EC2::VPC
+        Properties: 
+            CidrBlock: !Ref VpcBlock
+            EnableDnsHostnames: true
+            EnableDnsSupport: true
+            Tags:
+                - Key: Name
+                  Value: !Sub "${AWS::StackName}-MyVPC2"
+              
+    MyPubSubnet2:
+        Type: AWS::EC2::Subnet
+        Properties:
+            AvailabilityZone:
+                Fn::Select:
+                    - '0'
+                    - Fn::GetAZs:
+                        Ref: AWS::Region
+            VpcId: !Ref MyVPC2
+            CidrBlock: !Ref Subnet01Block
+            Tags:
+                - Key: Name
+                  Value: !Sub "${AWS::StackName}-MyPubSubnet2"
+    MyRouteTab2:
+        Type: AWS::EC2::RouteTable
+        Properties:
+            VpcId: !Ref MyVPC2
+            Tags:
+                - Key: Name
+                  Value: !Sub "${AWS::StackName}-MyRouteTab2" 
+
+    MyIGW2:
+        Type: AWS::EC2::InternetGateway
+        Properties:
+            Tags:
+                - Key: Name
+                  Value: !Sub "${AWS::StackName}-MyIGW2"
+
+    MySubnetRTAssociation2:
+        Type: AWS::EC2::SubnetRouteTableAssociation
+        Properties:
+            SubnetId: !Ref MyPubSubnet2
+            RouteTableId: !Ref MyRouteTab2
+
+    MyVPCGatewayAttachment2:
+        Type: AWS::EC2::VPCGatewayAttachment
+        Properties:
+            InternetGatewayId: !Ref MyIGW2
+            VpcId: !Ref MyVPC2
+            
+    MyRoute2:
+        Type: AWS::EC2::Route
+        Properties:
+            RouteTableId: !Ref MyRouteTab2
+            DestinationCidrBlock: 0.0.0.0/0
+            GatewayId: !Ref MyIGW2            
+            
+
+Outputs:
+    MyPubSubnet2Id:
+        Description: MyPubSubnet2 Id
+        Value: !Ref MyPubSubnet2
+        
+    VpcId:
+        Description: My VPC Id
+        Value: !Ref MyVPC2

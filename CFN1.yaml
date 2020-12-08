@@ -1,0 +1,12 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Basic EC2 Instance.
+
+Resources:
+    CFT1Instance:
+        Type: AWS::EC2::Instance
+        Properties:
+            ImageId: ami-0a887e401f7654935
+            InstanceType: t2.micro
+            KeyName: awssolutions-key
+            SecurityGroups: 
+                - default

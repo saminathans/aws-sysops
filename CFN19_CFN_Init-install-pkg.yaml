@@ -1,0 +1,108 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Userdata Demo
+
+Parameters:
+    MyKeyName:
+        Description: "Select the key name"
+        Type: AWS::EC2::KeyPair::KeyName
+    MyEnvironmentName:
+        Description: "Selct the Environment"
+        Type: String
+        Default: "Dev"
+        AllowedValues:
+            - Dev
+            - Prod
+    MyInstanceType:
+        Description: "Selct the Instance Type"
+        Type: String
+        Default: "t2.micro"
+        AllowedValues:
+            - t2.nano
+            - t2.micro
+            - t2.small
+            
+Mappings:
+    MyRegionMap:
+        us-east-1:
+            HVM64: ami-0a887e401f7654935
+        us-east-2:
+            HVM64: ami-0e38b48473ea57778
+        us-west-1:
+            HVM64: ami-01c94064639c71719
+        us-west-2:
+            HVM64: ami-0e8c04af2729ff1bb
+    MyEnvironmentMap:
+        Dev:
+            InstanceType: t2.micro
+        Prod:
+            InstanceType: t2.small
+            
+Resources:
+    MyEc2Instance:
+        Type: AWS::EC2::Instance
+        Metadata:
+            Comment: Deploy Simple Apache Application
+            AWS::CloudFormation::Init:
+                config:
+                    packages:
+                        yum:
+                            java-1.8.0-openjdk.x86_64: []
+                            java-1.8.0-openjdk.devel: []
+                            tomcat8: []
+                    groups:
+                        groupone: {}
+                        grouptwo:
+                            gid: "501"
+                    users:
+                        user1:
+                            groups:
+                                - groupone
+                                - grouptwo
+                            uid: "501"
+                            homeDir: "/tmp"
+                    sources:
+                        /tmp: "https://s3.us.east-1.amazonaws.com/cfn-init-0189/cfn/demo1.zip"
+                    files:
+                        "/etc/cfn/cfn-hup.conf":
+                            content: !Sub |
+                                [main]
+                                stack=${AWS::StackId}
+                                region=${AWS::Region}
+                                interval:7
+                            mode: "000400"
+                            owner: "root"
+                            group: "root"
+                        "/etc/cfn/hooks.d/cfn-auto-reloader.conf"
+                            content: !Sub |
+                            
+                    commands:
+                    services:
+                    
+        Properties:
+            GroupDescription: "My EC2 Instance for CFN demo"
+            ImageId: !FindInMap
+                - MyRegionMap
+                - !Ref 'AWS::Region'
+                - HVM64
+            InstanceType: !FindInMap
+                - MyEnvironmentMap
+                - !Ref MyEnvironmentName
+                - InstanceType
+            KeyName: awssolutions-key
+            SecurityGroups: 
+                - !Ref DevEnvSecurityGroup
+				
+
+    DevEnvSecurityGroup:
+        Type: AWS::EC2::SecurityGroup
+        Properties:
+            GroupDescription: Dev SG
+            SecurityGroupIngress:
+                - IpProtocol: tcp
+                  FromPort: 80
+                  ToPort: 80
+                  CidrIp: 0.0.0.0/0
+                - IpProtocol: tcp
+                  FromPort: 22
+                  ToPort: 22
+                  CidrIp: 0.0.0.0/0                  

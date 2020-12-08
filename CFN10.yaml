@@ -1,0 +1,56 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Mapping Demo v2.
+
+Parameters:
+    MyKeyName:
+        Description: "Select the key name"
+        Type: AWS::EC2::KeyPair::KeyName
+    MyEnvironmentName:
+        Description: "Selct the Environment"
+        Type: String
+        Default: "Dev"
+        AllowedValues:
+            - Dev
+            - Prod
+Mappings:
+    MyRegionMap:
+        us-east-1:
+            HVM64: ami-0a887e401f7654935
+        us-east-2:
+            HVM64: ami-0e38b48473ea57778
+        us-west-1:
+            HVM64: ami-01c94064639c71719
+        us-west-2:
+            HVM64: ami-0e8c04af2729ff1bb
+    MyEnvironmentMap:
+        Dev:
+            InstanceType: t2.micro
+        Prod:
+            InstanceType: t2.small
+
+Conditions:
+    CreateEIPForProd: !Equals [!Ref MyEnvironmentName,Prod]
+        
+        
+Resources:
+    CFT1Instance:
+        Type: AWS::EC2::Instance
+        Properties:
+            ImageId: !FindInMap
+                - MyRegionMap
+                - !Ref 'AWS::Region'
+                - HVM64
+            InstanceType: !FindInMap
+                - MyEnvironmentMap
+                - !Ref MyEnvironmentName
+                - InstanceType
+            KeyName: awssolutions-key
+            SecurityGroups: 
+                - default
+    MyProdEIP:
+        Type: AWS::EC2::EIP
+        Condition: CreateEIPForProd
+        Properties:
+            InstanceId: !Ref CFT1Instance
+        
+    

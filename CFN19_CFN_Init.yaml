@@ -1,0 +1,82 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Userdata Demo
+
+Parameters:
+    MyKeyName:
+        Description: "Select the key name"
+        Type: AWS::EC2::KeyPair::KeyName
+    MyEnvironmentName:
+        Description: "Selct the Environment"
+        Type: String
+        Default: "Dev"
+        AllowedValues:
+            - Dev
+            - Prod
+    MyInstanceType:
+        Description: "Selct the Instance Type"
+        Type: String
+        Default: "t2.micro"
+        AllowedValues:
+            - t2.nano
+            - t2.micro
+            - t2.small
+            
+Mappings:
+    MyRegionMap:
+        us-east-1:
+            HVM64: ami-0a887e401f7654935
+        us-east-2:
+            HVM64: ami-0e38b48473ea57778
+        us-west-1:
+            HVM64: ami-01c94064639c71719
+        us-west-2:
+            HVM64: ami-0e8c04af2729ff1bb
+    MyEnvironmentMap:
+        Dev:
+            InstanceType: t2.micro
+        Prod:
+            InstanceType: t2.small
+            
+Resources:
+    MyEc2Instance:
+        Type: AWS::EC2::Instance
+        Metadata:
+            Comment: Deploy Simple Apache Application
+            AWS::CloudFormation::Key:
+                config:
+                    packages:
+                    groups:
+                    users:
+                    sources:
+                    files:
+                    commands:
+                    services:
+                    
+        Properties:
+            GroupDescription: "My EC2 Instance for CFN demo"
+            ImageId: !FindInMap
+                - MyRegionMap
+                - !Ref 'AWS::Region'
+                - HVM64
+            InstanceType: !FindInMap
+                - MyEnvironmentMap
+                - !Ref MyEnvironmentName
+                - InstanceType
+            KeyName: awssolutions-key
+            SecurityGroups: 
+                - !Ref DevEnvSecurityGroup
+				
+
+    DevEnvSecurityGroup:
+        Type: AWS::EC2::SecurityGroup
+        Properties:
+            GroupDescription: Dev SG
+            SecurityGroupIngress:
+                - IpProtocol: tcp
+                  FromPort: 80
+                  ToPort: 80
+                  CidrIp: 0.0.0.0/0
+                - IpProtocol: tcp
+                  FromPort: 22
+                  ToPort: 22
+                  CidrIp: 0.0.0.0/0                  

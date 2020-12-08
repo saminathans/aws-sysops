@@ -1,0 +1,28 @@
+Resources:
+    MyInstance1:
+        Type: AWS::EC2::Instance
+        Properties:
+            AvailabilityZone: us-east-1b
+            ImageId: ami-0a887e401f7654935
+            InstanceType: "t2.micro"
+            "NetworkInterfaces": [
+                    {
+                        "AssociatePublicIpAddress": true,
+                        "DeviceIndex": 0,
+                        "SubnetId": "subnet-05ae0f741d6337541",
+                    }
+                ]
+    MyInstance2:
+        Type: "AWS::EC2::SecurityGroup"
+        Properties:
+            GroupDescription: "Security group for AWS"
+            VpcId: vpc-00331ca56ca0af8a7
+            SecurityGroupIngress: [
+                {
+                    "FromPort": 22,
+                    "ToPort": 22,
+                    "IpProtocol": "tcp",
+                    "CidrIp": "157.50.37.239/32"
+                }
+            ]
+        
