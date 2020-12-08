@@ -1,0 +1,22 @@
+{
+   "Version":"2012-10-17",
+   "Statement":[
+     {
+       "Sid":"111",
+       "Effect":"Allow",
+       "Principal":{"AWS":"208308553486"},
+       "Action":"s3:PutObject",
+       "Resource":"arn:aws:s3:::billing-sami/*"
+     },
+     {
+       "Sid":"112",
+       "Effect":"Deny",
+       "Principal":{"AWS":"208308553486" },
+       "Action":"s3:PutObject",
+       "Resource":"arn:aws:s3:::billing-sami/*",
+       "Condition": {
+         "StringNotEquals": {"s3:x-amz-grant-full-control":["emailAddress=awssolutions.in@gmail.com"]}
+       }
+     }
+   ]
+}

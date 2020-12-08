@@ -1,0 +1,44 @@
+aws config lot of questions
+
+aws config to enforce rules (port 80 open and notification)
+
+Route 53 and ELB in diff account, how to set up more cost-effectively
+
+how to encrypt EFS
+
+how federated athenticated users get access - via AWS policy,AWS group,AWS role,AWS user?
+
+pre-set spending level alert - Budge, cost explorer, Cost & Usage report, Inspector
+
+WAF -only atatched to ALB? how about classic
+
+Public  connection interface, Hosted connection interface - Direct Connect connection
+
+s3 Account-A write into Account-B bucket but Bucket-B not able to delete, what should be done  - acl?
+
+ELB with 2 EC2 instances on the same subnet, health count drops to 1.. what could be the reason?
+
+
+Template works in Region A, not in B..why?  Amzn services not available in B, AMI not available, IAM permission missing
+
+
+AWS Organizations- SCL - is approved list to allow or restricted list to deny?
+
+
+JSON policy document - s3.List* - is it valid?
+
+SSL certficate private key, crypto - Amazon HSM?
+
+CloudTrail logfile Validation (against tampering)
+
+
+
+
+
+
+
+
+
+
+
+
